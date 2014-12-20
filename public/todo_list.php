@@ -11,8 +11,7 @@ function openfile($filename) {
 			$contentsarray = explode("\n", $contents);
 			fclose($handle);
 		}
-		// $contentsarray = array_values($contentsarray);
-	// return $contentsarray;
+	return $contentsarray;
 }
 
 
@@ -27,14 +26,15 @@ function openfile($filename) {
 //need to check if it exists
 if(isset($_POST['todo'])) {
 	$stufftodo[] = $_POST['todo'];
-	echo savefile('data/list.txt', $stufftodo);
+	savefile('data/list.txt', $stufftodo);
 }
 
 //must undo with unset
 if(isset($_GET['remove'])) {
 	$id = $_GET['remove'];
 	unset($stufftodo[$id]);
-	echo savefile('data/list.txt', $stufftodo);
+	$stufftodo = array_values($stufftodo);
+	savefile('data/list.txt', $stufftodo);
 }
 
 
@@ -55,7 +55,6 @@ if(isset($_GET['remove'])) {
 			<?php
 				foreach($stufftodo as $key => $value) {
 					echo "<li>{$value} | <a href=\"/todo_list.php?remove={$key}\">X</a></li>";
-					// echo'<li>' . $value . ;
 				}
 			?>
 		</ul>
