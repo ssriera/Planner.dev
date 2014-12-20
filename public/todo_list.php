@@ -4,11 +4,15 @@
 $stufftodo = openfile('data/list.txt');
 
 function openfile($filename) {
-	$handle = fopen($filename, 'r');
-	$contents = fread($handle, filesize($filename));
-	$stufftodo = explode("\n", $contents);
-	fclose($handle);
-	return $stufftodo;
+	$contentsarray = [];
+		if(filesize($filename) > 0) {
+			$handle = fopen($filename, 'r');
+			$contents = trim(fread($handle, filesize($filename)));
+			$contentsarray = explode("\n", $contents);
+			fclose($handle);
+		}
+		// $contentsarray = array_values($contentsarray);
+	// return $contentsarray;
 }
 
 
@@ -20,11 +24,19 @@ function openfile($filename) {
     fclose($handle);
  }
 
-
+//need to check if it exists
 if(isset($_POST['todo'])) {
-	//grab post add to array above
 	$stufftodo[] = $_POST['todo'];
+	echo savefile('data/list.txt', $stufftodo);
 }
+
+//must undo with unset
+if(isset($_GET['remove'])) {
+	$id = $_GET['remove'];
+	unset($stufftodo[$id]);
+	echo savefile('data/list.txt', $stufftodo);
+}
+
 
 ?>
 
@@ -39,26 +51,30 @@ if(isset($_POST['todo'])) {
 
 <body>
 	<h2>Current To Do List:</h2>
-	<ul>
-		<?php
-			foreach($stufftodo as $key => $value) {
-				echo "<li>{$value}</li>";
-			}
-		?>
-	</ul>
+		<ul>
+			<?php
+				foreach($stufftodo as $key => $value) {
+					echo "<li>{$value} | <a href=\"/todo_list.php?remove={$key}\">X</a></li>";
+					// echo'<li>' . $value . ;
+				}
+			?>
+		</ul>
 
 <br>
 
-
 <hr>
-<form method="POST"  action="/todo_list.php">
-	<h3>Add a task to the To Do List:</h3>
-    <p>
-        <label for="todo" class="right">New Task</label>
-    <br>
-        <input id="todo" name="todo" type="text" placeholder="Add your task">
-    </p>
- <br>
- <button type="submit" class="right">Add Task</button>
+
+	<form method="POST"  action="/todo_list.php">
+		<h3>Add a task to the To Do List:</h3>
+	    <p>
+	        <label for="todo" class="right">New Task</label>
+	    <br>
+	        <input id="todo" name="todo" type="text" placeholder="Add your task">
+	    </p>
+	 	
+	 	<br>
+
+		<button type="submit" class="btn btn-default">Add Task</button>
+	</form>
 </body>
 </html>
