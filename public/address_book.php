@@ -4,6 +4,10 @@ class AddressInfo {
 
 	public $filename = '';
 
+	function __construct($filename = 'address_book.csv') {
+		$this->filename = $filename;
+	}
+
 	public function read_file() {
 		 $handle = fopen($this->filename, 'r');
 
@@ -33,13 +37,25 @@ class AddressInfo {
 }
 
 $AddressInst = new AddressInfo();
-$AddressInst->filename = 'address_book.csv';
+// $AddressInst->filename = 'address_book.csv';
 $addressBook = $AddressInst->read_file();
 
 if($_POST) {
 	$addressBook[] = $_POST;
 	$AddressInst->save_file($addressBook);
 }
+
+if(isset($_GET['delete'])) {
+	$id = $_GET['delete'];
+	unset($addressBook[$id]);
+	$addressBook = array_values($addressBook);
+	$AddressInst->save_file($addressBook);	
+}
+
+
+
+
+
 
 ?>
 
@@ -75,13 +91,16 @@ if($_POST) {
       <div class="row">
         <div class="col-md-12">
           <h2>Running the List... Checking it twice...</h2>
+
           <table class="table table-striped">
-						<? foreach($addressBook as $address): ?>
+						<? foreach($addressBook as $key => $row): ?>
 							<tr>
-								<? foreach($address as $info): ?>
-									<td><?= $info ?></td>
+								<? foreach($row as $value): ?>
+									<td colspan="1"> <?= $value ?></td>
 								<? endforeach; ?>
-									<td class="delete">X</td>
+									<td id="delete">
+								<a href="?delete=<?= $key; ?>">X</a>
+							</td>
 							</tr>
 						<? endforeach; ?>
 					</table>
@@ -95,6 +114,7 @@ if($_POST) {
 						<input type="submit" value="Save">
 					</form>
  
+		
         </div>
       </div>
  
