@@ -5,6 +5,25 @@ define('DB_USER', 'codeup');
 define('DB_PASS', 'codeup');
 
 require('../db_connect.php');
+require_once('abdb_address.php');
+
+$address = new Address($dbc);
+
+if (!empty($_POST['street']) &&
+    !empty($_POST['city']) &&
+    !empty($_POST['state']) &&
+    !empty($_POST['zip'])) {
+
+    $address->streetAdd = htmlspecialchars(strip_tags($_POST['street']));
+    $address->aptAdd = htmlspecialchars(strip_tags($_POST['apt']));
+    $address->cityAdd = htmlspecialchars(strip_tags($_POST['city']));
+    $address->stateAdd = htmlspecialchars(strip_tags($_POST['state']));
+    $address->zipAdd = htmlspecialchars(strip_tags($_POST['zip']));
+    $address->fourAdd = htmlspecialchars(strip_tags($_POST['four']));
+
+    $address->insert();
+}
+
 
 // Pagination
 if (!isset($_GET['page'])) {
@@ -19,12 +38,9 @@ if (!isset($_GET['page'])) {
 
 
 
-class address {
-
-}
 
 //To database
-$stmt = $dbc->prepare('SELECT * FROM address LIMIT 10 OFFSET :offset');
+$stmt = $dbc->prepare('SELECT person_id, street, apt, city, state, zip, plus_four FROM address LIMIT 10 OFFSET :offset');
 $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
 $stmt->execute();
 $stmts = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -62,12 +78,13 @@ $stmts = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <div class="panel panel-default">
         <table class="table table-striped table-bordered">
 		    <tr>
-			    <th>Name</th>	
+          <th>#</th>
+          <th>Name</th> 
           <th>Steet</th>    
-			    <th>Apt</th>
-			    <th>City</th>
-			    <th>State</th>
-			    <th>Zip</th>
+          <th>Apt</th>
+          <th>City</th>
+          <th>State</th>
+          <th>Zip</th>
 			    <th width="70px"></th>
 		    </tr>
     <!-- Loop through each of the contacts and output -->
@@ -102,6 +119,7 @@ $stmts = $stmt->fetchAll(PDO::FETCH_ASSOC);
   					<input type="text" name="city" placeholder="City">
   					<input type="text" name="state" placeholder="State">
   					<input type="text" name="zip" placeholder="Zip">
+            <input type="text" name="four" placeholder="Last four">
   					<input type="submit" value="Save">
   			</form>	
   			<br>
