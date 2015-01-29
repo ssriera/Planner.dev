@@ -5,6 +5,7 @@ Class People extends Model {
 	public $fnameAdd = '';
 	public $lnameAdd = '';
 	public $phoneAdd = '';
+	public $contactRemove = '';
 
 	public function insert() {
 
@@ -17,6 +18,29 @@ Class People extends Model {
     	$stmt->bindValue(':phone', $this->phoneAdd, PDO::PARAM_STR);
     
     	 $stmt->execute();
+	}
+
+	public function delete() {
+
+	  $query = "DELETE FROM people where id = :id"; 
+	  
+	  $stmt = $this->dbc->prepare($query);
+	  $stmt->bindValue(':id', $this->contactRemove, PDO::PARAM_INT);
+
+	  $stmt->execute();
+
+	}
+
+//Delete the addresses associated with the FK person_id
+	public function deleteFK() {
+
+	  $query = "DELETE FROM address where person_id = :person_id";
+	  
+	  $stmt = $this->dbc->prepare($query);
+	  $stmt->bindValue(':person_id', $this->contactRemove, PDO::PARAM_INT);
+
+	  $stmt->execute();
+
 	}
 	
 }
