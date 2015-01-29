@@ -6,6 +6,11 @@ define('DB_PASS', 'codeup');
 
 require('../db_connect.php');
 require_once('abdb_people.php');
+require_once('abdb_address.php');
+
+
+
+
 
 $people = new People($dbc);
 
@@ -22,6 +27,15 @@ if (!empty($_POST['fname']) &&
 }
 
 
+//Remove logic
+  if (!empty($_GET['remove'])) {
+    // $people
+    $people->contactRemove = $_GET['remove'];
+    $people->deleteFK();
+    $people->delete();
+  }
+
+
 // Pagination
 if (!isset($_GET['page'])) {
     $page = 1;
@@ -36,11 +50,13 @@ if (!isset($_GET['page'])) {
 
 
 
-//To database
-$stmt = $dbc->prepare('SELECT first_name, last_name, phone FROM people LIMIT 10 OFFSET :offset');
+
+$stmt = $dbc->prepare('SELECT * FROM people LIMIT 10 OFFSET :offset');
 $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
 $stmt->execute();
 $stmts = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+
 
 
 ?>
@@ -75,6 +91,7 @@ $stmts = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <div class="panel panel-default">
         <table class="table table-striped table-bordered">
 		    <tr>
+          <!-- <th>#</th> -->
           <th>First Name</th>
           <th>Last Name</th> 
           <th>Phone</th>    
@@ -90,7 +107,8 @@ $stmts = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 </td>
             <?php endforeach ?>
             <td>
-                <a href="/addressbookp_db.php?remove=<?= $key ?>" class="btn btn-default btn-danger btn-center">X</a>
+                <a href="?remove=<?=$row['id'] ?>" class="btn btn-default btn-danger btn-center">X</a>
+
             </td>
         </tr>
     <?php endforeach ?>
@@ -105,7 +123,7 @@ $stmts = $stmt->fetchAll(PDO::FETCH_ASSOC);
       <div class="row">
         <div class="col-md-10 no-pad-left">
   			<form action="/addressbookp_db.php" method="POST" enctype="multipart/form-data">
-  				<h3>Add a New Contact</h3>
+  				<h3><span class="glyphicon glyphicon-plus-sign"></span> Add a New Contact</h3>
   					<input type="text" name="fname" placeholder="First Name">
   					<input type="text" name="lname" placeholder="Last Name">
             <input type="text" name="phone" placeholder="Phone">
@@ -116,7 +134,7 @@ $stmts = $stmt->fetchAll(PDO::FETCH_ASSOC);
 				<hr>
   			</p>
         <form method="post" enctype="multipart/form-data" action="/addressbookp_db.php">
-      		<h3>Upload a File</h3>
+      		<h3><span class="glyphicon glyphicon-upload"></span> Upload a File</h3>
           	<p>
               <label for="file1">File to upload: </label>
               <input type="file" id="file1" name="file1">
