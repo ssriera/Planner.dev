@@ -19,7 +19,7 @@ if (!empty($_POST['street']) &&
     $address->cityAdd = htmlspecialchars(strip_tags($_POST['city']));
     $address->stateAdd = htmlspecialchars(strip_tags($_POST['state']));
     $address->zipAdd = htmlspecialchars(strip_tags($_POST['zip']));
-    $address->fourAdd = htmlspecialchars(strip_tags($_POST['four']));
+    $address->personAdd = htmlspecialchars(strip_tags($_POST['personid']));
 
     $address->insert();
 }
@@ -36,13 +36,18 @@ if (!isset($_GET['page'])) {
     $offset = ($page-1) * 10;
 };
 
+//Remove logic
+  if (!empty($_GET['remove'])) {
+    $address->addressRemove = $_GET['remove'];
+    $address->delete();
+  }
 
 
-
-//To database
-$stmt = $dbc->prepare('SELECT person_id, street, apt, city, state, zip, plus_four FROM address LIMIT 10 OFFSET :offset');
+//Selecting all from Address database
+$stmt = $dbc->prepare('SELECT * FROM address LIMIT 10 OFFSET :offset');
 $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
 $stmt->execute();
+
 $stmts = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 
@@ -78,8 +83,7 @@ $stmts = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <div class="panel panel-default">
         <table class="table table-striped table-bordered">
 		    <tr>
-          <th>#</th>
-          <th>Name</th> 
+          <!-- <th>#</th> -->
           <th>Steet</th>    
           <th>Apt</th>
           <th>City</th>
@@ -88,19 +92,31 @@ $stmts = $stmt->fetchAll(PDO::FETCH_ASSOC);
 			    <th width="70px"></th>
 		    </tr>
     <!-- Loop through each of the contacts and output -->
-    <?php foreach($stmts as $key => $row): ?>
-        <tr>
+<!--     <?php foreach($stmts as $key => $row): ?> -->
+        <!-- <tr> -->
             <!-- Loop through each value, in each address -->
-            <?php foreach ($row as $value): ?>
+           <!--  <?php foreach ($row as $value): ?>
                 <td>
                     <?= $value ?>
                 </td>
             <?php endforeach ?>
-            <td>
-                <a href="/addressbook_db.php?remove=<?= $key ?>" class="btn btn-default btn-danger btn-center">X</a>
-            </td>
         </tr>
-    <?php endforeach ?>
+    <?php endforeach ?> -->
+    
+            <? foreach ($stmts as $stmt): ?>
+              
+              <tr>
+             
+                <td><?= $stmt['street'] ?></td>
+                <td><?= $stmt['apt'] ?></td>
+                <td><?= $stmt['city'] ?></td>
+                <td><?= $stmt['state'] ?></td>
+                <td><?= $stmt['zip'] ?></td>
+              <td>
+                  <a href="?remove=<?= $stmt['id'] ?>" class="btn btn-default btn-danger btn-center">X</a>
+              </td>
+            <? endforeach ?>
+              </tr>
   </table>
 </div>
 
@@ -112,14 +128,13 @@ $stmts = $stmt->fetchAll(PDO::FETCH_ASSOC);
       <div class="row">
         <div class="col-md-10 no-pad-left">
   			<form action="/addressbook_db.php" method="POST" enctype="multipart/form-data">
-  				<h3>Add a New Contact</h3>
-  					<input type="text" name="name" placeholder="Name">
+  				<h3><span class="glyphicon glyphicon-plus-sign"></span> Add a New Contact</h3>
   					<input type="text" name="street" placeholder="Street">
             <input type="text" name="apt" placeholder="Apt">
   					<input type="text" name="city" placeholder="City">
   					<input type="text" name="state" placeholder="State">
   					<input type="text" name="zip" placeholder="Zip">
-            <input type="text" name="four" placeholder="Last four">
+            <input type="text" name="personid" placeholder="Person ID">
   					<input type="submit" value="Save">
   			</form>	
   			<br>
@@ -127,7 +142,7 @@ $stmts = $stmt->fetchAll(PDO::FETCH_ASSOC);
 				<hr>
   			</p>
         <form method="post" enctype="multipart/form-data" action="/addressbook_db.php">
-      		<h3>Upload a File</h3>
+      		<h3><span class="glyphicon glyphicon-upload"></span> Upload a File</h3>
           	<p>
               <label for="file1">File to upload: </label>
               <input type="file" id="file1" name="file1">
